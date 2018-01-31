@@ -3,8 +3,8 @@
 #include <BLEServer.h>
 #include "MIDIMessage.h"
 
-//#define DEVICE_NAME "GSKR"
-#define DEVICE_NAME "DSKR"
+#define DEVICE_NAME "GSKR"
+//#define DEVICE_NAME "DSKR"
 
 #define MIDI_SERVICE_UUID "03b80e5a-ede8-4b33-a751-6ce34ec4c700"
 #define BLEMIDI_CHAR_UUID "7772e5db-3868-4112-a1a9-f2669d106bf3"
@@ -86,40 +86,41 @@ void readMIDI()
     if(s.length() >= 5)
     {
       MIDIMessage value = MIDIMessage((byte *)s.c_str());
-      
-      if(value.timestamp != lastValue.timestamp)
-      {
-        switch(value.status)
-        {
-        
-          case 144:
-          {
-          //Serial.print("Note On ");
-          //Serial.print(value.data1);
-          //Serial.print('\t');
-          //Serial.println(value.data2);
-          byte v[2]{value.data1,value.data2};
-          sendCommand('n',v,2);
-          }
-          break;
 
-          case 128:
-          {
-          //Serial.print("Note Off ");
-          //Serial.println(value.data1);
-          sendCommand('o',value.data1);
-          }
-          break;
-  
-          case 176:
-          {
-         //Control Change
-          }
-          break;
+      if(value.timestamp == lastValue.timestamp) return;
+      if(value.data1 == lastValue.data1 && value.data2 == lastValue.data2) return;
+      
+      switch(value.status)
+      {
+      
+        case 144:
+        {
+        //Serial.print("Note On ");
+        //Serial.print(value.data1);
+        //Serial.print('\t');
+        //Serial.println(value.data2);
+        byte v[2]{value.data1,value.data2};
+        sendCommand('n',v,2);
         }
-        
-        lastValue = value;
+        break;
+
+        case 128:
+        {
+        //Serial.print("Note Off ");
+        //Serial.println(value.data1);
+        sendCommand('o',value.data1);
+        }
+        break;
+
+        case 176:
+        {
+       //Control Change
+        }
+        break;
       }
+      
+      lastValue = value;
+      
     }  
 }
 
